@@ -392,7 +392,7 @@ class BinaryStream(object):
 
     def write_vector_3_byte(self, values):
         """
-        @type values: tuple[int]
+        @type values: (int, int, int)
         """
         self.write_byte(values[0])
         self.write_byte(values[1])
@@ -400,7 +400,7 @@ class BinaryStream(object):
 
     def write_vector_4_byte(self, values):
         """
-        @type values: tuple[int]
+        @type values: (int, int, int, int)
         """
         self.write_byte(values[0])
         self.write_byte(values[1])
@@ -409,7 +409,7 @@ class BinaryStream(object):
 
     def write_vector_3_int16(self, values, byte_order=None):
         """
-        @type values: tuple[int]
+        @type values: (int, int, int)
         """
         self.write_int16(values[0], byte_order)
         self.write_int16(values[1], byte_order)
@@ -417,7 +417,7 @@ class BinaryStream(object):
 
     def write_vector_3_int32(self, values, byte_order=None):
         """
-        @type values: tuple[int]
+        @type values: (int, int, int)
         """
         self.write_int32(values[0], byte_order)
         self.write_int32(values[1], byte_order)
@@ -425,7 +425,7 @@ class BinaryStream(object):
 
     def write_vector_3_float(self, values, byte_order=None):
         """
-        @type values: tuple[float]
+        @type values: (float, float, float)
         """
         self.write_float(values[0], byte_order)
         self.write_float(values[1], byte_order)
@@ -433,7 +433,7 @@ class BinaryStream(object):
 
     def write_vector_4_float(self, values, byte_order=None):
         """
-        @type values: tuple[float]
+        @type values: (float, float, float, float)
         """
         self.write_float(values[0], byte_order)
         self.write_float(values[1], byte_order)
@@ -442,7 +442,7 @@ class BinaryStream(object):
 
     def write_vector_3b(self, values):
         """
-        @type values: tuple[int]
+        @type values: (int, int, int)
         """
         self.write_byte(values[0])
         self.write_byte(values[1])
