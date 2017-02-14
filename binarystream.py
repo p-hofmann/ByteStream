@@ -116,7 +116,7 @@ class BinaryStream(object):
         @param byte_string: binary data to be unpacked
         @type byte_string: str | bytes
         @param byte_order: '<' little-endian, '>' big-endian
-        @type byte_order: str
+        @type byte_order: str | None
 
         @rtype: None
         """
