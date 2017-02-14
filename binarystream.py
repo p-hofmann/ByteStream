@@ -440,14 +440,6 @@ class BinaryStream(object):
         self.write_float(values[2], byte_order)
         self.write_float(values[3], byte_order)
 
-    def write_vector_3b(self, values):
-        """
-        @type values: (int, int, int)
-        """
-        self.write_byte(values[0])
-        self.write_byte(values[1])
-        self.write_byte(values[2])
-
     def write_vector_x_int32(self, values, byte_order=None):
         """
         @type values: tuple[int]
