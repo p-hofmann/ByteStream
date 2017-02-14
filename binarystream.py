@@ -88,7 +88,7 @@ class BinaryStream(object):
         @return: byte string
         @rtype: str | bytes
         """
-        return struct.pack("{order}{type}".format(order=byte_order, type=data_type), values)
+        return struct.pack("{order}{type}".format(order=byte_order, type=data_type), *values)
 
     @staticmethod
     def unpack(data_type, byte_string, byte_order='>'):
@@ -122,7 +122,7 @@ class BinaryStream(object):
         """
         if byte_order is None:
             byte_order = self._byte_order
-        byte_string = self.pack(data_type, values, byte_order=byte_order)
+        byte_string = self.pack(data_type, *values, byte_order=byte_order)
         self._bytestream.write(byte_string)
 
     def _unpack(self, length, data_type, byte_order=None):
