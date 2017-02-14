@@ -74,7 +74,7 @@ class BinaryStream(object):
     # #######################################
 
     @staticmethod
-    def pack(data_type, *values, byte_order='>'):
+    def pack(data_type, byte_order='>', *values):
         """
         Pack value to byte string
 
@@ -107,7 +107,7 @@ class BinaryStream(object):
         """
         return struct.unpack("{order}{type}".format(order=byte_order, type=data_type), byte_string)
 
-    def _pack(self, data_type, *values, byte_order=None):
+    def _pack(self, data_type, byte_order=None, *values):
         """
         Pack value to byte string
 
@@ -122,7 +122,7 @@ class BinaryStream(object):
         """
         if byte_order is None:
             byte_order = self._byte_order
-        byte_string = self.pack(data_type, *values, byte_order=byte_order)
+        byte_string = self.pack(data_type, byte_order, *values)
         self._bytestream.write(byte_string)
 
     def _unpack(self, length, data_type, byte_order=None):
@@ -217,7 +217,7 @@ class BinaryStream(object):
         @rtype: str
         """
         length = self.read_int16_unassigned(byte_order)
-        string = self._unpack(length, '%is' % length)[0]
+        string = self._unpack(length, '%is' % length, byte_order)[0]
         return string.decode('utf8')
 
     def read_byte_array(self, byte_order=None):
@@ -314,61 +314,61 @@ class BinaryStream(object):
         """
         @type value: bool
         """
-        self._pack('?', value)
+        self._pack('?', None, value)
 
     def write_byte(self, value):
         """
         @type value: int
         """
-        self._pack('b', value)
+        self._pack('b', None, value)
 
     def write_int16(self, value, byte_order=None):
         """
         @type value: int
         """
-        self._pack('h', value, byte_order=byte_order)
+        self._pack('h', byte_order, value)
 
     def write_int16_unassigned(self, value, byte_order=None):
         """
         @type value: int
         """
-        self._pack('H', value, byte_order=byte_order)
+        self._pack('H', byte_order, value)
 
     def write_int32(self, value, byte_order=None):
         """
         @type value: int
         """
-        self._pack('i', value, byte_order=byte_order)
+        self._pack('i', byte_order, value)
 
     def write_int32_unassigned(self, value, byte_order=None):
         """
         @type value: int
         """
-        self._pack('I', value, byte_order=byte_order)
+        self._pack('I', byte_order, value)
 
     def write_int64(self, value, byte_order=None):
         """
         @type value: int
         """
-        self._pack('q', value, byte_order=byte_order)
+        self._pack('q', byte_order, value)
 
     def write_int64_unassigned(self, value, byte_order=None):
         """
         @type value: int
         """
-        self._pack('Q', value, byte_order=byte_order)
+        self._pack('Q', byte_order, value)
 
     def write_float(self, value, byte_order=None):
         """
         @type value: float
         """
-        self._pack('f', value, byte_order=byte_order)
+        self._pack('f', byte_order, value)
 
     def write_double(self, value, byte_order=None):
         """
         @type value: float
         """
-        self._pack('d', value, byte_order=byte_order)
+        self._pack('d', byte_order, value)
 
     def write_string(self, value, byte_order=None):
         """
@@ -377,9 +377,9 @@ class BinaryStream(object):
         length = len(value)
         self.write_int16_unassigned(length, byte_order)
         if isinstance(value, text_type):
-            self._pack('%is' % length, value.encode('utf-8'))
+            self._pack('%is' % length, byte_order, value.encode('utf-8'))
         else:
-            self._pack('%is' % length, value)
+            self._pack('%is' % length, byte_order, value)
 
     def write_byte_array(self, values, byte_order=None):
         """
@@ -472,7 +472,7 @@ class BinaryStream(object):
         @type int_24bit: int
         @rtype: str | bytes
         """
-        return BinaryStream.pack('i', int_24bit, byte_order=byte_order)[1:]
+        return BinaryStream.pack('i', byte_order, int_24bit)[1:]
 
     @staticmethod
     def pack_int24b(int_24bit, byte_order='>'):
@@ -485,7 +485,7 @@ class BinaryStream(object):
             BinaryStream.bits_parse(int_24bit, 8, 8),
             BinaryStream.bits_parse(int_24bit, 16, 8),
         )
-        return BinaryStream.pack('BBB', data[0], data[1], data[2], byte_order=byte_order)
+        return BinaryStream.pack('BBB', byte_order, data[0], data[1], data[2])
 
     @staticmethod
     def unpack_int24(byte_string):
