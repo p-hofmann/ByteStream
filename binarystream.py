@@ -1,10 +1,17 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.0.1'
 
 import struct
+import sys
+
+if sys.version_info < (3,):
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 
-class ByteStream(object):
+class BinaryStream(object):
     """
     Class idea based on:
     http://stackoverflow.com/questions/442188/readint-readbyte-readstring-etc-in-python/4338551#4338551
@@ -35,14 +42,14 @@ class ByteStream(object):
     p     char[]              string
     P     void *              integer           (5), (3)
 
-    @type _bytestream: file
+    @type _bytestream:
     """
 
     def __init__(self, bytestream, byte_order=">"):
         """
 
         @param bytestream:
-        @type bytestream: file
+        @type bytestream: FileIO[str]
         @param byte_order:
         @type byte_order: str
         """
@@ -66,17 +73,39 @@ class ByteStream(object):
     def pack_int24(int_24bit):
         """
         @type int_24bit: int
-        @rtype: str
+        @rtype: str | bytes
         """
         return struct.pack('>i', int_24bit)[1:]
 
     @staticmethod
+    def pack_int24b(int_24bit):
+        """
+        @type int_24bit: int
+        @rtype: str | bytes
+        """
+        data = (
+            BinaryStream.bits_parse(int_24bit, 0, 8),
+            BinaryStream.bits_parse(int_24bit, 8, 8),
+            BinaryStream.bits_parse(int_24bit, 16, 8),
+        )
+        return struct.pack('>BBB', data[0], data[1], data[2])
+
+    @staticmethod
     def unpack_int24(byte_string):
         """
-        @type byte_string: str
+        @type byte_string: str | bytes
         @rtype: int
         """
-        return struct.unpack(">i", '\x00' + byte_string)[0]
+        return struct.unpack(">i", b'\x00' + byte_string)[0]
+
+    @staticmethod
+    def unpack_int24b(byte_string):
+        """
+        @type byte_string: str | bytes
+        @rtype: int
+        """
+        data = struct.unpack(">BBB", byte_string)
+        return data[0] | data[1] << 8 | data[2] << 16
 
     def pack(self, value, data_type):
         """
@@ -88,7 +117,7 @@ class ByteStream(object):
         @type data_type: str
 
         @return: byte string
-        @rtype: str
+        @rtype: str | bytes
         """
         return struct.pack("{order}{type}".format(
             order=self._byte_order,
@@ -109,7 +138,7 @@ class ByteStream(object):
         Pack value to byte string
 
         @param byte_string: value to be packed
-        @type byte_string: str
+        @type byte_string: str | bytes
         @param data_type: datatype
         @type data_type: str
 
@@ -120,7 +149,7 @@ class ByteStream(object):
             order=self._byte_order,
             type=data_type), byte_string)[0]
 
-    def _unpack(self, length, data_type, padding=""):
+    def _unpack(self, length, data_type, padding=b''):
         if self._byte_order == '>' or self._byte_order == '!':
             return self.unpack(padding + self._bytestream.read(length), data_type)
         return self.unpack(self._bytestream.read(length) + padding, data_type)
@@ -162,13 +191,13 @@ class ByteStream(object):
         """
         @rtype: int
         """
-        return self._unpack(3, 'i', '\x00')
+        return self._unpack(3, 'i', b'\x00')
 
     def read_int24_unassigned(self):
         """
         @rtype: int
         """
-        return self._unpack(3, 'I', '\x00')
+        return self._unpack(3, 'I', b'\x00')
 
     def read_int32(self):
         """
@@ -211,7 +240,8 @@ class ByteStream(object):
         @rtype: str
         """
         length = self.read_int16_unassigned()
-        return self._unpack(length, str(length) + 's')
+        string = self._unpack(length, '%is' % length)
+        return string.decode('utf8')
 
     def read_byte_array(self):
         """
@@ -342,7 +372,7 @@ class ByteStream(object):
 
     def write(self, value):
         """
-        @type value: str
+        @type value: : str | bytes
         """
         self._bytestream.write(value)
 
@@ -424,7 +454,10 @@ class ByteStream(object):
         """
         length = len(value)
         self.write_int16_unassigned(length)
-        self._pack(value, str(length) + 's')
+        if isinstance(value, text_type):
+            self._pack(value.encode('utf-8'), '%is' % length)
+        else:
+            self._pack(value, '%is' % length)
 
     def write_byte_array(self, values):
         """
