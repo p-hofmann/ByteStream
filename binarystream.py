@@ -1,4 +1,5 @@
 __author__ = 'Peter Hofmann'
+__version__ = "0.0.1"
 
 import struct
 import sys
@@ -516,6 +517,15 @@ class BinaryStream(object):
 
     def tell(self):
         return self._bytestream.tell()
+
+    def is_eof(self):
+        """
+        Test if end of file is reached.
+        """
+        if not self._bytestream.read(1):
+            return True
+        self._bytestream.seek(-1, whence=1)
+        return False
 
     @staticmethod
     def is_stream(stream):
